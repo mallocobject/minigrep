@@ -2,9 +2,7 @@ use minigrep::{search, search_case_insensitive};
 use std::{env, error::Error, fs, process};
 
 fn main() {
-    let args: Vec<String> = env::args().collect();
-
-    let config = Config::build(&args).unwrap_or_else(|err| {
+    let config = Config::build(env::args()).unwrap_or_else(|err| {
         eprintln!("Problem parsing arguments: {err}");
         process::exit(1);
     });
@@ -16,7 +14,7 @@ fn main() {
 }
 
 fn run(config: &Config) -> Result<(), Box<dyn Error>> {
-    let contents = fs::read_to_string(config.file_path)?;
+    let contents = fs::read_to_string(&config.file_path)?;
 
     let results = if config.ignore_case {
         search_case_insensitive(&config.query, &contents)
@@ -31,23 +29,31 @@ fn run(config: &Config) -> Result<(), Box<dyn Error>> {
     Ok(())
 }
 
-struct Config<'a> {
-    query: &'a String,
-    file_path: &'a String,
+struct Config {
+    query: String,
+    file_path: String,
     ignore_case: bool,
 }
 
-impl<'a> Config<'a> {
-    fn build(args: &'a [String]) -> Result<Self, &'static str> {
-        if args.len() < 3 {
-            return Err("not enough arguments");
-        }
+impl Config {
+    fn build(mut args: impl Iterator<Item = String>) -> Result<Self, &'static str> {
+        args.next();
+
+        let query = match args.next() {
+            Some(arg) => arg,
+            None => return Err("Didn't get a query string"),
+        };
+
+        let file_path = match args.next() {
+            Some(arg) => arg,
+            None => return Err("Didn't get a file path"),
+        };
 
         let ignore_case = env::var("IGNORE_CASE").is_ok();
 
-        Ok(Self {
-            query: &args[1],
-            file_path: &args[2],
+        Ok(Config {
+            query,
+            file_path,
             ignore_case,
         })
     }

@@ -1,24 +1,17 @@
 pub fn search<'a>(query: &str, contents: &'a str) -> Vec<&'a str> {
-    let mut result = Vec::new();
-    for line in contents.lines() {
-        if line.contains(query) {
-            result.push(line);
-        }
-    }
-
-    result
+    contents
+        .lines()
+        .filter(|line| line.contains(query))
+        .collect()
 }
 
 pub fn search_case_insensitive<'a>(query: &str, contents: &'a str) -> Vec<&'a str> {
-    let mut result = Vec::new();
     let query = query.to_lowercase();
-    for line in contents.lines() {
-        if line.to_lowercase().contains(&query) {
-            result.push(line);
-        }
-    }
 
-    result
+    contents
+        .lines()
+        .filter(|line| line.to_lowercase().contains(&query))
+        .collect()
 }
 
 #[cfg(test)]
