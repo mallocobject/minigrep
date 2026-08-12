@@ -31,10 +31,10 @@ fn run(config: &Config) -> Result<(), Box<dyn Error>> {
     Ok(())
 }
 
-pub struct Config<'a> {
-    pub query: &'a String,
-    pub file_path: &'a String,
-    pub ignore_case: bool,
+struct Config<'a> {
+    query: &'a String,
+    file_path: &'a String,
+    ignore_case: bool,
 }
 
 impl<'a> Config<'a> {
